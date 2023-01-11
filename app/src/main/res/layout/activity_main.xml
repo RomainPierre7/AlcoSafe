@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/activity_main"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,12 +9,11 @@
 
     <TextView
         android:id="@+id/alcoolText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="124dp"
+        android:layout_width="415dp"
+        android:layout_height="57dp"
         android:layout_marginTop="176dp"
-        android:layout_marginEnd="124dp"
-        android:text="0.0 g/L"
+        android:gravity="center"
+        android:text="0,0 g/L"
         android:textSize="40sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -23,31 +23,152 @@
         android:id="@+id/aJeunToggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
-        android:layout_marginBottom="40dp"
+        android:layout_marginStart="48dp"
+        android:layout_marginTop="51dp"
         android:text="À jeun"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/drinkButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="40dp"
-        android:layout_marginBottom="40dp"
+        android:layout_marginTop="51dp"
+        android:layout_marginEnd="56dp"
         android:text="New Drink"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <HorizontalScrollView
-        android:layout_width="413dp"
-        android:layout_height="282dp"
-        tools:layout_editor_absoluteX="-2dp"
-        tools:layout_editor_absoluteY="318dp">
+        android:id="@+id/HSVDrinks"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginBottom="30dp"
+        android:background="@drawable/drinks_background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
-        <LinearLayout
+        <GridLayout
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:orientation="vertical" />
+            android:layout_height="wrap_content"
+            android:columnCount="5">
+
+            <ImageButton
+                android:id="@+id/beerButton"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:scaleType="fitXY"
+                tools:layout_editor_absoluteX="29dp"
+                tools:layout_editor_absoluteY="92dp"
+                tools:srcCompat="@drawable/beer" />
+
+            <ImageButton
+                android:id="@+id/imageButton2"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:scaleType="fitXY"
+                tools:layout_editor_absoluteX="29dp"
+                tools:layout_editor_absoluteY="92dp"
+                tools:srcCompat="@tools:sample/avatars" />
+
+            <ImageButton
+                android:id="@+id/imageButton3"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:scaleType="fitXY"
+                tools:layout_editor_absoluteX="29dp"
+                tools:layout_editor_absoluteY="92dp"
+                tools:srcCompat="@tools:sample/avatars" />
+
+            <ImageButton
+                android:id="@+id/imageButton4"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:scaleType="fitXY"
+                tools:layout_editor_absoluteX="29dp"
+                tools:layout_editor_absoluteY="92dp"
+                tools:srcCompat="@tools:sample/avatars" />
+
+            <ImageButton
+                android:id="@+id/imageButton5"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:scaleType="fitXY"
+                tools:layout_editor_absoluteX="29dp"
+                tools:layout_editor_absoluteY="92dp"
+                tools:srcCompat="@tools:sample/avatars" />
+
+            <ImageButton
+                android:id="@+id/wineButton"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:background="#00FFFFFF"
+                android:scaleType="fitXY"
+                tools:layout_editor_absoluteX="29dp"
+                tools:layout_editor_absoluteY="92dp"
+                tools:srcCompat="@drawable/wine_glass" />
+
+            <ImageButton
+                android:id="@+id/imageButton7"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:scaleType="fitXY"
+                tools:layout_editor_absoluteX="29dp"
+                tools:layout_editor_absoluteY="92dp"
+                tools:srcCompat="@tools:sample/avatars" />
+
+            <ImageButton
+                android:id="@+id/imageButton8"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:scaleType="fitXY"
+                tools:layout_editor_absoluteX="29dp"
+                tools:layout_editor_absoluteY="92dp"
+                tools:srcCompat="@tools:sample/avatars" />
+
+            <ImageButton
+                android:id="@+id/imageButton9"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:scaleType="fitXY"
+                tools:layout_editor_absoluteX="29dp"
+                tools:layout_editor_absoluteY="92dp"
+                tools:srcCompat="@tools:sample/avatars" />
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                app:srcCompat="@drawable/beer" />
+
+        </GridLayout>
     </HorizontalScrollView>
+
+    <TextView
+        android:id="@+id/sobreText"
+        android:layout_width="416dp"
+        android:layout_height="27dp"
+        android:layout_marginTop="40dp"
+        android:gravity="center"
+        android:text="Sobre"
+        android:textSize="17dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/alcoolText" />
+
+    <TextView
+        android:id="@+id/driveText"
+        android:layout_width="409dp"
+        android:layout_height="26dp"
+        android:layout_marginTop="20dp"
+        android:gravity="center"
+        android:text="Vous pouvez conduire"
+        android:textSize="17dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sobreText" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,4 +1,4 @@
 package com.iseven.alcosafe
 
-class Drinks {
+class Drinks (val name: String, val percentage: Int, val quantity: Int ){
 }
