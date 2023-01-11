@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/green_gradient"
     tools:context=".MainActivity">
 
     <TextView
@@ -26,49 +27,62 @@
         android:layout_marginStart="48dp"
         android:layout_marginTop="51dp"
         android:text="À jeun"
+        android:textOn="À jeun"
+        android:textOff="À jeun"
+        android:background="@drawable/toggle_selector"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/drinkButton"
+        android:id="@+id/resetButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="51dp"
         android:layout_marginEnd="56dp"
-        android:text="New Drink"
+        android:text="Reset"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <HorizontalScrollView
         android:id="@+id/HSVDrinks"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="160dp"
         android:layout_marginStart="30dp"
         android:layout_marginEnd="30dp"
         android:layout_marginBottom="30dp"
         android:background="@drawable/drinks_background"
+        android:scrollbars="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
         <GridLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="150dp"
             android:columnCount="5">
 
             <ImageButton
                 android:id="@+id/beerButton"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginBottom="15dp"
+                android:background="#00FFFFFF"
                 android:scaleType="fitXY"
-                tools:layout_editor_absoluteX="29dp"
-                tools:layout_editor_absoluteY="92dp"
-                tools:srcCompat="@drawable/beer" />
+                app:srcCompat="@drawable/beer" />
+
 
             <ImageButton
                 android:id="@+id/imageButton2"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginBottom="15dp"
+                android:background="#00FFFFFF"
                 android:scaleType="fitXY"
                 tools:layout_editor_absoluteX="29dp"
                 tools:layout_editor_absoluteY="92dp"
@@ -76,8 +90,13 @@
 
             <ImageButton
                 android:id="@+id/imageButton3"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginBottom="15dp"
+                android:background="#00FFFFFF"
                 android:scaleType="fitXY"
                 tools:layout_editor_absoluteX="29dp"
                 tools:layout_editor_absoluteY="92dp"
@@ -85,8 +104,13 @@
 
             <ImageButton
                 android:id="@+id/imageButton4"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginBottom="15dp"
+                android:background="#00FFFFFF"
                 android:scaleType="fitXY"
                 tools:layout_editor_absoluteX="29dp"
                 tools:layout_editor_absoluteY="92dp"
@@ -94,8 +118,13 @@
 
             <ImageButton
                 android:id="@+id/imageButton5"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginBottom="15dp"
+                android:background="#00FFFFFF"
                 android:scaleType="fitXY"
                 tools:layout_editor_absoluteX="29dp"
                 tools:layout_editor_absoluteY="92dp"
@@ -103,46 +132,27 @@
 
             <ImageButton
                 android:id="@+id/wineButton"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginBottom="15dp"
                 android:background="#00FFFFFF"
                 android:scaleType="fitXY"
-                tools:layout_editor_absoluteX="29dp"
-                tools:layout_editor_absoluteY="92dp"
-                tools:srcCompat="@drawable/wine_glass" />
+                app:srcCompat="@drawable/wine_glass" />
 
             <ImageButton
-                android:id="@+id/imageButton7"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:id="@+id/newDrink"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginBottom="15dp"
+                android:background="#00FFFFFF"
                 android:scaleType="fitXY"
-                tools:layout_editor_absoluteX="29dp"
-                tools:layout_editor_absoluteY="92dp"
-                tools:srcCompat="@tools:sample/avatars" />
-
-            <ImageButton
-                android:id="@+id/imageButton8"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:scaleType="fitXY"
-                tools:layout_editor_absoluteX="29dp"
-                tools:layout_editor_absoluteY="92dp"
-                tools:srcCompat="@tools:sample/avatars" />
-
-            <ImageButton
-                android:id="@+id/imageButton9"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:scaleType="fitXY"
-                tools:layout_editor_absoluteX="29dp"
-                tools:layout_editor_absoluteY="92dp"
-                tools:srcCompat="@tools:sample/avatars" />
-
-            <ImageView
-                android:id="@+id/imageView"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                app:srcCompat="@drawable/beer" />
+                app:srcCompat="@android:drawable/btn_plus" />
 
         </GridLayout>
     </HorizontalScrollView>

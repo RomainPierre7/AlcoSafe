@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.ToggleButton
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -11,6 +12,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 lateinit var sharedPreferences: SharedPreferences
+lateinit var sharedEditor: SharedPreferences.Editor
 val executor = Executors.newSingleThreadScheduledExecutor()
 lateinit var alcoolText: TextView
 lateinit var sobreText: TextView
@@ -22,6 +24,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         sharedPreferences = getSharedPreferences("sharedPreferences", MODE_PRIVATE)
+        sharedEditor = sharedPreferences?.edit()!!
 
         permisDef = sharedPreferences.getBoolean("permisDef", true)
         homme = sharedPreferences.getBoolean("homme", true)
@@ -31,15 +34,27 @@ class MainActivity : AppCompatActivity() {
         alcoolText = findViewById<TextView>(R.id.alcoolText)
         sobreText = findViewById<TextView>(R.id.sobreText)
         driveText = findViewById(R.id.driveText)
-        var aJeunToggle = findViewById<ToggleButton>(R.id.aJeunToggle)
-        var newDrink = findViewById<Button>(R.id.drinkButton)
+        val aJeunToggle = findViewById<ToggleButton>(R.id.aJeunToggle)
+        val reset = findViewById<Button>(R.id.resetButton)
+        val newDrink = findViewById<ImageButton>(R.id.newDrink)
 
         refreshBackground()
+
+        reset.setOnClickListener {
+            gramme = 0
+            refreshTexts()
+            refreshBackground()
+        }
 
         newDrink.setOnClickListener {
             gramme += 10
             refreshTexts()
             refreshBackground()
+        }
+
+        aJeunToggle.setOnClickListener {
+            sharedEditor?.putBoolean("aJeun", aJeunToggle.isChecked)
+            sharedEditor?.commit()
         }
     }
 
