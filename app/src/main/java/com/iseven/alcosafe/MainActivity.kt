@@ -1,13 +1,19 @@
 package com.iseven.alcosafe
 
+import android.content.ContentValues.TAG
+import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.ToggleButton
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
+import androidx.room.Room
+import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -25,7 +31,11 @@ class MainActivity : AppCompatActivity() {
 
         sharedPreferences = getSharedPreferences("sharedPreferences", MODE_PRIVATE)
         sharedEditor = sharedPreferences?.edit()!!
-
+        val db = Room.databaseBuilder(
+            this,
+            Database::class.java, "drink_database"
+        ).build()
+        val drinkDAO = db.drinkDao()
         permisDef = sharedPreferences.getBoolean("permisDef", true)
         homme = sharedPreferences.getBoolean("homme", true)
         aJeun = sharedPreferences.getBoolean("aJeun", false)
@@ -37,10 +47,19 @@ class MainActivity : AppCompatActivity() {
         val aJeunToggle = findViewById<ToggleButton>(R.id.aJeunToggle)
         val reset = findViewById<Button>(R.id.resetButton)
         val newDrink = findViewById<ImageButton>(R.id.newDrink)
+        val beer = findViewById<ImageButton>(R.id.beerButton)
+        val wine = findViewById<ImageButton>(R.id.wineButton)
 
         refreshBackground()
 
         reset.setOnClickListener {
+            Thread{
+                drinkDAO.deleteAll()
+                val count = drinkDAO.count()
+                runOnUiThread {
+                    Log.d(TAG, "hhhhh $count")
+                }
+            }.start()
             gramme = 0
             refreshTexts()
             refreshBackground()
@@ -55,6 +74,20 @@ class MainActivity : AppCompatActivity() {
         aJeunToggle.setOnClickListener {
             sharedEditor?.putBoolean("aJeun", aJeunToggle.isChecked)
             sharedEditor?.commit()
+        }
+
+        beer.setOnClickListener {
+            var calendar = Calendar.getInstance()
+            val drink = Drink(0,"Bière", 5, 25, calendar.timeInMillis, 0.0)
+            val gramme = gramme(drink.percentage, drink.quantity)
+            drink.alcoolemieDrink = alcoolemieDrink(gramme, drink.time)
+            Thread {
+                drinkDAO.insertDrink(drink)
+                val count = drinkDAO.count()
+                runOnUiThread {
+                    Log.d(TAG, "hhhhh $count")
+                }
+            }.start()
         }
     }
 
@@ -89,13 +122,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun refreshTexts(){
+    private fun refreshTexts() {
         alcoolText.text = alcoolemieToString(alcoolemie())
         sobreText.text = sobreString()
         driveText.text = driveString()
     }
 
-    private fun startRunner(){
+    private fun startRunner() {
         executor.scheduleAtFixedRate({
             refreshTexts()
             refreshBackground()
