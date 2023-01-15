@@ -24,4 +24,7 @@ interface DrinkDAO {
 
     @Query("SELECT COUNT(*) FROM drinks_table")
     fun count(): Int
-    }
+
+    @Query("SELECT id FROM drinks_table ORDER BY time DESC LIMIT 1")
+    fun lastDrink(): Int
+}

@@ -1,5 +1,7 @@
 package com.iseven.alcosafe
 
+import android.content.ContentValues.TAG
+import android.util.Log
 import java.text.DecimalFormat
 import java.util.*
 
@@ -7,26 +9,28 @@ var permisDef = true
 var homme = true
 var aJeun = false
 var poids = 75
-var gramme = 0
+var globalAlco = 0.0
+var lastDigestTime: Long = 0
+var listDrinks: List<Drink> = emptyList()
 
-fun alcoolemie(): Double {
-    // Refresh all drinks'alcoolemy and sum them
-    if (homme){
-        return gramme/(poids * 0.7)
-    }else{
-        return gramme/(poids * 0.6)
+fun alcoolemie(){
+    var sum = 0.0
+    for (i in listDrinks.indices){
+        sum += alcoolemieDrink(listDrinks[i])
     }
+    globalAlco = sum
 }
 
-fun alcoolemieDrink(gramme: Int, timeMS: Long): Double {
+fun alcoolemieDrink(drink: Drink): Double {
     val calendar = Calendar.getInstance()
     val currentTime = calendar.timeInMillis
-    val elapsedTimeMinutes = (currentTime - timeMS) / (1000 * 60)
+    val elapsedTimeMinutes = (currentTime - drink.time) / (1000 * 60)
     var alco: Double
+    var gramme = gramme(drink.percentage, drink.quantity)
     if (homme){
-        alco = gramme/(poids * 0.7) - ((0.1/0.6) * elapsedTimeMinutes)
+        alco = gramme/(poids * 0.7) - (weight(drink) * (0.1/60) * jeun(elapsedTimeMinutes))
     }else{
-        alco = gramme/(poids * 0.6)- ((0.085/0.6) * elapsedTimeMinutes)
+        alco = gramme/(poids * 0.6)- (weight(drink) * (0.085/60) * jeun(elapsedTimeMinutes))
     }
     if (alco < 0.0){
         return 0.0
@@ -35,13 +39,13 @@ fun alcoolemieDrink(gramme: Int, timeMS: Long): Double {
     }
 }
 
-fun alcoolemieToString(alcoolemie: Double): String {
-    val format = DecimalFormat("#.# g/L")
-    return format.format(alcoolemie)
+fun alcoolemieToString(): String {
+    val format = DecimalFormat("#.## g/L")
+    return format.format(globalAlco)
 }
 
 fun remainingTime(target: Double): Int {
-    var state = alcoolemie()
+    var state = globalAlco
     var minutes = 0
     if (homme){
         while (state > target){
@@ -52,6 +56,17 @@ fun remainingTime(target: Double): Int {
         while (state > target){
             state -= 0.085/60
             minutes++
+        }
+    }
+    val calendar = Calendar.getInstance()
+    val currentTime = calendar.timeInMillis
+    val elapsedTimeMinutes = (currentTime - lastDigestTime) / (1000 * 60)
+    when (aJeun){
+        true -> if (elapsedTimeMinutes < 30) {
+            minutes += 30 - elapsedTimeMinutes.toInt()
+        }
+        false -> if (elapsedTimeMinutes < 60 * 60 * 1000){
+            minutes += 60 - elapsedTimeMinutes.toInt()
         }
     }
     return minutes
@@ -68,7 +83,7 @@ fun remainingTimeToString(remainingTime: Int): String{
 }
 
 fun sobreString(): String {
-    if (alcoolemie() == 0.0){
+    if (globalAlco == 0.0){
         return "Sobre"
     } else {
         return "Sobre dans " + remainingTimeToString(remainingTime(0.0))
@@ -77,20 +92,42 @@ fun sobreString(): String {
 
 fun driveString(): String{
     when (permisDef){
-        true -> if(alcoolemie() <= 0.4){
+        true -> if(globalAlco < 0.5){
             return "Vous pouvez conduire"
         }else{
-            return "Vous ne pouvez pas conduire"
+            return "⚠ Vous ne pouvez pas conduire ⚠"
         }
-        false -> if(alcoolemie() <= 0.1){
+        false -> if(globalAlco < 0.2){
             return "Vous pouvez conduire"
         }else{
-            return "Vous ne pouvez pas conduire"
+            return "⚠ Vous ne pouvez pas conduire ⚠"
         }
     }
 }
 
 fun gramme(pourcentage: Int, quantity: Int): Int {
-    return ((9 * pourcentage * quantity).toDouble() / (1000).toDouble()).toInt()
+    return ((9 * pourcentage * quantity * 10).toDouble() / (1000).toDouble()).toInt()
 }
 
+fun jeun(time: Long): Long{
+    when (aJeun){
+        true -> if (time < 30 * 60 * 1000){
+            return 0
+        }else{
+            return time - 30 * 60 * 1000
+        }
+        false -> if (time < 60 * 60 * 1000){
+            return 0
+        }else{
+            return time - 60 * 60 * 1000
+        }
+    }
+}
+
+fun weight(drink: Drink): Double{
+    var tot = 0
+    for (i in listDrinks.indices){
+        tot += gramme(listDrinks[i].percentage, listDrinks[i].quantity)
+    }
+    return gramme(drink.percentage, drink.quantity).toDouble()/tot.toDouble()
+}
