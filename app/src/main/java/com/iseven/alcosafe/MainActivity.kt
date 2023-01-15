@@ -154,6 +154,6 @@ class MainActivity : AppCompatActivity() {
     private fun startRunner() {
         executor.scheduleAtFixedRate({
             refresh()
-        }, 0, 3, TimeUnit.SECONDS)
+        }, 0, 10, TimeUnit.SECONDS)
     }
 }
