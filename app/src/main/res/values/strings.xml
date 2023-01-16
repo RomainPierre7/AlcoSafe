@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">AlcoSafe</string>
+    <string name="item_default_name">Boisson</string>
+    <string name="item_default_hour">00:00</string>
 </resources>

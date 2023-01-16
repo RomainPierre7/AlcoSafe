@@ -12,4 +12,5 @@ class Drink (
     @ColumnInfo(name = "percentage") var percentage: Int,
     @ColumnInfo(name = "quantity") var quantity: Int,
     @ColumnInfo(name = "time") var time: Long,
+    @ColumnInfo(name = "tag") var tag: String,
     )

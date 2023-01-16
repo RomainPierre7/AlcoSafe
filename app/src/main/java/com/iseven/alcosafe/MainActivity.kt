@@ -1,5 +1,7 @@
 package com.iseven.alcosafe
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
@@ -7,8 +9,12 @@ import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.GridLayout
+import android.widget.GridView
 import android.widget.ImageButton
+import android.widget.ListView
 import android.widget.Switch
 import android.widget.TextView
 import android.widget.ToggleButton
@@ -24,13 +30,14 @@ import java.util.concurrent.TimeUnit
 // Heure
 // Notification alco (service)
 // Confirmation reset
-// Historique
 // Message premier lancement
 // Nettoyer le code
+// Opti
 
 lateinit var sharedPreferences: SharedPreferences
 lateinit var sharedEditor: SharedPreferences.Editor
 val executor = Executors.newSingleThreadScheduledExecutor()
+lateinit var listHistory: GridView
 lateinit var alcoolText: TextView
 lateinit var sobreText: TextView
 lateinit var driveText: TextView
@@ -55,10 +62,13 @@ class MainActivity : AppCompatActivity() {
         alcoolText = findViewById<TextView>(R.id.alcoolText)
         sobreText = findViewById<TextView>(R.id.sobreText)
         driveText = findViewById(R.id.driveText)
+        listHistory = findViewById(R.id.listHistory)
         val settings = findViewById<ImageButton>(R.id.settingsButton)
         val aJeunToggle = findViewById<Switch>(R.id.aJeunToggle)
         val reset = findViewById<ImageButton>(R.id.resetButton)
-        val beer = findViewById<ImageButton>(R.id.beer25Button)
+
+        val beer25 = findViewById<ImageButton>(R.id.beer25Button)
+        val beer50 = findViewById<ImageButton>(R.id.beer50Button)
         val wine = findViewById<ImageButton>(R.id.wineButton)
 
         Thread{
@@ -69,15 +79,20 @@ class MainActivity : AppCompatActivity() {
         }.start()
 
         refresh()
+        listHistory.adapter = HistoryAdapter(this, listDrinks)
+        listHistory.invalidateViews()
 
-        fun addDrink(name: String, percentage: Int, quantity: Int, time: Long){
-            val drink = Drink(0, name, percentage, quantity, time)
+        fun addDrink(name: String, percentage: Int, quantity: Int, tag: String){
+            val time = getTime()
+            val drink = Drink(0, name, percentage, quantity, time, tag)
             Thread {
                 drinkDAO.insertDrink(drink)
                 listDrinks = drinkDAO.getAllDrinks()
                 lastDigestTime = drinkDAO.getDrink(drinkDAO.lastDrink()).time
             }.start()
             refresh()
+            listHistory.adapter = HistoryAdapter(this, listDrinks)
+            listHistory.invalidateViews()
         }
 
         reset.setOnClickListener {
@@ -85,6 +100,8 @@ class MainActivity : AppCompatActivity() {
                 drinkDAO.deleteAll()
                 listDrinks = drinkDAO.getAllDrinks()
             }.start()
+            listHistory.adapter = HistoryAdapter(this, listDrinks)
+            listHistory.invalidateViews()
             refresh()
         }
 
@@ -99,14 +116,34 @@ class MainActivity : AppCompatActivity() {
             sharedEditor?.commit()
         }
 
-        beer.setOnClickListener {
+        beer25.setOnClickListener {
+            val name = "Bière 25"
+            val percentage = 5
+            val quantity = 25
+            val tag = "beer25"
+            addDrink(name, percentage, quantity, tag)
+        }
+
+        beer50.setOnClickListener {
             var calendar = Calendar.getInstance()
-            val name = "Bière"
+            val name = "Bière 50"
             val percentage = 5
             val quantity = 25
             val time = calendar.timeInMillis
-            addDrink(name, percentage, quantity, time)
+            val tag = "beer50"
+            addDrink(name, percentage, quantity, tag)
         }
+
+        wine.setOnClickListener {
+            var calendar = Calendar.getInstance()
+            val name = "Vin"
+            val percentage = 12
+            val quantity = 13
+            val time = calendar.timeInMillis
+            val tag = "wine"
+            addDrink(name, percentage, quantity, tag)
+        }
+
         startRunner()
     }
 
@@ -155,5 +192,30 @@ class MainActivity : AppCompatActivity() {
         executor.scheduleAtFixedRate({
             refresh()
         }, 0, 10, TimeUnit.SECONDS)
+    }
+
+    private fun getTime(): Long {
+        val calendar = Calendar.getInstance()
+        /*val calendar2 = Calendar.getInstance()
+        var timeMS: Long = calendar2.timeInMillis
+        val datePickerDialog = DatePickerDialog(this,
+            DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
+                val timePickerDialog = TimePickerDialog(this,
+                    TimePickerDialog.OnTimeSetListener { _, hour, minute ->
+                        calendar.set(Calendar.YEAR, year)
+                        calendar.set(Calendar.MONTH, month)
+                        calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                        calendar.set(Calendar.HOUR_OF_DAY, hour)
+                        calendar.set(Calendar.MINUTE, minute)
+                    }, calendar2.get(Calendar.HOUR_OF_DAY), calendar2.get(Calendar.MINUTE), true
+                )
+                timePickerDialog.show()
+            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)
+        )
+        datePickerDialog.show()
+        timeMS = calendar.timeInMillis
+        Log.d(TAG, "hhhhh $timeMS")
+        return timeMS*/
+        return calendar.timeInMillis
     }
 }
