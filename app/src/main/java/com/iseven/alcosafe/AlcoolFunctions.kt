@@ -65,7 +65,7 @@ fun remainingTime(target: Double): Int {
         true -> if (elapsedTimeMinutes < 30) {
             minutes += 30 - elapsedTimeMinutes.toInt()
         }
-        false -> if (elapsedTimeMinutes < 60 * 60 * 1000){
+        false -> if (elapsedTimeMinutes < 60){
             minutes += 60 - elapsedTimeMinutes.toInt()
         }
     }
@@ -111,15 +111,15 @@ fun gramme(pourcentage: Int, quantity: Int): Int {
 
 fun jeun(time: Long): Long{
     when (aJeun){
-        true -> if (time < 30 * 60 * 1000){
+        true -> if (time < 30){
             return 0
         }else{
-            return time - 30 * 60 * 1000
+            return time - 30
         }
-        false -> if (time < 60 * 60 * 1000){
+        false -> if (time < 60){
             return 0
         }else{
-            return time - 60 * 60 * 1000
+            return time - 60
         }
     }
 }

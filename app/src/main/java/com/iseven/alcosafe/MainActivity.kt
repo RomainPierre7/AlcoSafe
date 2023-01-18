@@ -9,17 +9,10 @@ import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.GridLayout
-import android.widget.GridView
-import android.widget.ImageButton
-import android.widget.ListView
-import android.widget.Switch
-import android.widget.TextView
-import android.widget.ToggleButton
+import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.size
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import java.util.*
@@ -70,6 +63,7 @@ class MainActivity : AppCompatActivity() {
         val beer25 = findViewById<ImageButton>(R.id.beer25Button)
         val beer50 = findViewById<ImageButton>(R.id.beer50Button)
         val wine = findViewById<ImageButton>(R.id.wineButton)
+        val cocktail = findViewById<ImageButton>(R.id.cocktailButton)
 
         Thread{
             listDrinks = drinkDAO.getAllDrinks()
@@ -83,16 +77,38 @@ class MainActivity : AppCompatActivity() {
         listHistory.invalidateViews()
 
         fun addDrink(name: String, percentage: Int, quantity: Int, tag: String){
-            val time = getTime()
-            val drink = Drink(0, name, percentage, quantity, time, tag)
-            Thread {
-                drinkDAO.insertDrink(drink)
-                listDrinks = drinkDAO.getAllDrinks()
-                lastDigestTime = drinkDAO.getDrink(drinkDAO.lastDrink()).time
-            }.start()
-            refresh()
-            listHistory.adapter = HistoryAdapter(this, listDrinks)
-            listHistory.invalidateViews()
+            val calendar = Calendar.getInstance()
+            val calendar2 = Calendar.getInstance()
+            var currentTimeMS: Long = calendar2.timeInMillis
+            val datePickerDialog = DatePickerDialog(this,
+                DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
+                    val timePickerDialog = TimePickerDialog(this,
+                        TimePickerDialog.OnTimeSetListener { _, hour, minute ->
+                            calendar.set(Calendar.YEAR, year)
+                            calendar.set(Calendar.MONTH, month)
+                            calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
+                            calendar.set(Calendar.HOUR_OF_DAY, hour)
+                            calendar.set(Calendar.MINUTE, minute)
+                            var timeMS = calendar.timeInMillis
+                            val drink = Drink(0, name, percentage, quantity, timeMS, tag)
+                            if (timeMS <= currentTimeMS){
+                                Thread {
+                                    drinkDAO.insertDrink(drink)
+                                    listDrinks = drinkDAO.getAllDrinks()
+                                    lastDigestTime = drinkDAO.getDrink(drinkDAO.lastDrink()).time
+                                }.start()
+                                refresh()
+                                listHistory.adapter = HistoryAdapter(this, listDrinks)
+                                listHistory.invalidateViews()
+                            }else{
+                                Toast.makeText(this, "Cette application ne pemet pas de voyager dans le futur, la boisson n'a pas pu être ajoutée", Toast.LENGTH_LONG).show()
+                            }
+                        }, calendar2.get(Calendar.HOUR_OF_DAY), calendar2.get(Calendar.MINUTE), true
+                    )
+                    timePickerDialog.show()
+                }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)
+            )
+            datePickerDialog.show()
         }
 
         reset.setOnClickListener {
@@ -129,7 +145,6 @@ class MainActivity : AppCompatActivity() {
             val name = "Bière 50"
             val percentage = 5
             val quantity = 25
-            val time = calendar.timeInMillis
             val tag = "beer50"
             addDrink(name, percentage, quantity, tag)
         }
@@ -139,9 +154,13 @@ class MainActivity : AppCompatActivity() {
             val name = "Vin"
             val percentage = 12
             val quantity = 13
-            val time = calendar.timeInMillis
             val tag = "wine"
             addDrink(name, percentage, quantity, tag)
+        }
+
+        cocktail.setOnClickListener {
+            listHistory.adapter = HistoryAdapter(this, listDrinks)
+            listHistory.invalidateViews()
         }
 
         startRunner()
@@ -191,31 +210,6 @@ class MainActivity : AppCompatActivity() {
     private fun startRunner() {
         executor.scheduleAtFixedRate({
             refresh()
-        }, 0, 10, TimeUnit.SECONDS)
-    }
-
-    private fun getTime(): Long {
-        val calendar = Calendar.getInstance()
-        /*val calendar2 = Calendar.getInstance()
-        var timeMS: Long = calendar2.timeInMillis
-        val datePickerDialog = DatePickerDialog(this,
-            DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
-                val timePickerDialog = TimePickerDialog(this,
-                    TimePickerDialog.OnTimeSetListener { _, hour, minute ->
-                        calendar.set(Calendar.YEAR, year)
-                        calendar.set(Calendar.MONTH, month)
-                        calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                        calendar.set(Calendar.HOUR_OF_DAY, hour)
-                        calendar.set(Calendar.MINUTE, minute)
-                    }, calendar2.get(Calendar.HOUR_OF_DAY), calendar2.get(Calendar.MINUTE), true
-                )
-                timePickerDialog.show()
-            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH)
-        )
-        datePickerDialog.show()
-        timeMS = calendar.timeInMillis
-        Log.d(TAG, "hhhhh $timeMS")
-        return timeMS*/
-        return calendar.timeInMillis
+        }, 0, 1, TimeUnit.SECONDS)
     }
 }
