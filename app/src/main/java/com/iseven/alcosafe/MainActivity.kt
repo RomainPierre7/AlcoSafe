@@ -1,36 +1,38 @@
 package com.iseven.alcosafe
 
+import android.R.attr.data
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.ContentValues.TAG
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat
-import androidx.core.view.size
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
-import androidx.room.RoomDatabase
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+
+
 //TODO
 //Renseigner caracteristiques boissons
-// Heure
+//historique
+//supprimer boisson historique
 // Notification alco (service)
 // Confirmation reset
 // Message premier lancement
 // Nettoyer le code
 // Opti
 
+lateinit var adapter: HistoryAdapter
 lateinit var sharedPreferences: SharedPreferences
 lateinit var sharedEditor: SharedPreferences.Editor
 val executor = Executors.newSingleThreadScheduledExecutor()
-lateinit var listHistory: GridView
 lateinit var alcoolText: TextView
 lateinit var sobreText: TextView
 lateinit var driveText: TextView
@@ -55,7 +57,7 @@ class MainActivity : AppCompatActivity() {
         alcoolText = findViewById<TextView>(R.id.alcoolText)
         sobreText = findViewById<TextView>(R.id.sobreText)
         driveText = findViewById(R.id.driveText)
-        listHistory = findViewById(R.id.listHistory)
+
         val settings = findViewById<ImageButton>(R.id.settingsButton)
         val aJeunToggle = findViewById<Switch>(R.id.aJeunToggle)
         val reset = findViewById<ImageButton>(R.id.resetButton)
@@ -71,10 +73,9 @@ class MainActivity : AppCompatActivity() {
                 lastDigestTime = drinkDAO.getDrink(drinkDAO.lastDrink()).time
             }
         }.start()
-
+        Thread.sleep(100)
         refresh()
-        listHistory.adapter = HistoryAdapter(this, listDrinks)
-        listHistory.invalidateViews()
+        refreshHistory()
 
         fun addDrink(name: String, percentage: Int, quantity: Int, tag: String){
             val calendar = Calendar.getInstance()
@@ -97,9 +98,9 @@ class MainActivity : AppCompatActivity() {
                                     listDrinks = drinkDAO.getAllDrinks()
                                     lastDigestTime = drinkDAO.getDrink(drinkDAO.lastDrink()).time
                                 }.start()
+                                Thread.sleep(100)
                                 refresh()
-                                listHistory.adapter = HistoryAdapter(this, listDrinks)
-                                listHistory.invalidateViews()
+                                refreshHistory()
                             }else{
                                 Toast.makeText(this, "Cette application ne pemet pas de voyager dans le futur, la boisson n'a pas pu être ajoutée", Toast.LENGTH_LONG).show()
                             }
@@ -116,9 +117,9 @@ class MainActivity : AppCompatActivity() {
                 drinkDAO.deleteAll()
                 listDrinks = drinkDAO.getAllDrinks()
             }.start()
-            listHistory.adapter = HistoryAdapter(this, listDrinks)
-            listHistory.invalidateViews()
+            Thread.sleep(100)
             refresh()
+            refreshHistory()
         }
 
         settings.setOnClickListener{
@@ -159,8 +160,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         cocktail.setOnClickListener {
-            listHistory.adapter = HistoryAdapter(this, listDrinks)
-            listHistory.invalidateViews()
+            refreshHistory()
         }
 
         startRunner()
@@ -211,5 +211,14 @@ class MainActivity : AppCompatActivity() {
         executor.scheduleAtFixedRate({
             refresh()
         }, 0, 1, TimeUnit.SECONDS)
+    }
+
+    private fun refreshHistory(){
+        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+        val numberOfColumns = 5
+        recyclerView.layoutManager = GridLayoutManager(this, numberOfColumns)
+        adapter = HistoryAdapter(this, listDrinks)
+        //adapter.setOnClickListener(this)
+        recyclerView.adapter = adapter
     }
 }

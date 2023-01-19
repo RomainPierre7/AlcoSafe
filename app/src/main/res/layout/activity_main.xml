@@ -428,20 +428,18 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/reset" />
 
-    <GridView
-        android:id="@+id/listHistory"
-        android:layout_width="300dp"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="0dp"
         android:layout_height="70dp"
-        android:layout_marginBottom="25dp"
-        android:horizontalSpacing="0dp"
-        android:numColumns="4"
-        android:stretchMode="columnWidth"
-        android:verticalSpacing="8dp"
+        android:layout_marginStart="35dp"
+        android:layout_marginEnd="25dp"
+        android:layout_marginBottom="15dp"
+        android:background="#00674343"
+        android:foregroundGravity="center"
         app:layout_constraintBottom_toTopOf="@+id/HSVDrinks"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-    </GridView>
+        app:layout_constraintStart_toStartOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
