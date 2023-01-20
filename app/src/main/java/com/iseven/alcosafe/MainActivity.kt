@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
                     "poids et de votre sexe.\n\n" +
                     "AlcoSafe est uniquement un indicateur et ne représente en aucun cas une preuve de votre " +
                     "alcoolémie réelle.\n\n" +
-                    "Vous êtes l'unique responsable de votre état et il est fortemment recommandé d'utiliser un " +
+                    "Vous êtes l'unique responsable de votre état et il est fortement recommandé d'utiliser un " +
                     "alcootest avant de prendre le volant.")
 
             builder.setPositiveButton("Suivant") { dialog, which ->
@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
                 builder.setTitle("Mode d'emploi")
                 builder.setMessage("⸰ Cliquez sur une boisson pour rentrer une heure et l'ajouter à votre liste de consommation.\n\n" +
                         "⸰ Maintenez une boisson pour l'ajouter directement à votre liste de consommation avec l'heure actuelle.\n\n" +
-                        "⸰ Maintenez une boisson de votre liste de consommation pour la supprimmer.")
+                        "⸰ Maintenez une boisson de votre liste de consommation pour la supprimer.")
 
                 builder.setPositiveButton("Suivant") { dialog, which ->
                     val builder = AlertDialog.Builder(this)
@@ -536,7 +536,7 @@ fun infoDialog() {
             "poids et de votre sexe.\n\n" +
             "AlcoSafe est uniquement un indicateur et ne représente en aucun cas une preuve de votre " +
             "alcoolémie réelle.\n\n" +
-            "Vous êtes l'unique responsable de votre état et il est fortemment recommandé d'utiliser un " +
+            "Vous êtes l'unique responsable de votre état et il est fortement recommandé d'utiliser un " +
             "alcootest avant de prendre le volant.")
 
     builder.setPositiveButton("Suivant") { dialog, which ->
@@ -545,7 +545,7 @@ fun infoDialog() {
         builder.setMessage(
             "⸰ Cliquez sur une boisson pour rentrer une heure et l'ajouter à votre liste de consommation.\n\n" +
                     "⸰ Maintenez une boisson pour l'ajouter directement à votre liste de consommation avec l'heure actuelle.\n\n" +
-                    "⸰ Maintenez une boisson de votre liste de consommation pour la supprimmer."
+                    "⸰ Maintenez une boisson de votre liste de consommation pour la supprimer."
         )
 
         builder.setPositiveButton("OK") { dialog, which ->
