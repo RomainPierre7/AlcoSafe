@@ -1,7 +1,5 @@
 package com.iseven.alcosafe
 
-import android.content.ContentValues.TAG
-import android.util.Log
 import java.text.DecimalFormat
 import java.util.*
 

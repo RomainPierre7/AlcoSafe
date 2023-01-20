@@ -1,26 +1,27 @@
 package com.iseven.alcosafe
 
-import android.R.attr.data
+import android.Manifest
+import android.app.Activity
 import android.app.AlertDialog
-import android.app.Application
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.text.InputType
 import android.util.Log
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
 import java.util.*
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 
 var firstLaunch = true
 var permisDef = true
@@ -34,16 +35,14 @@ var listDrinks: List<Drink> = emptyList()
 lateinit var adapter: HistoryAdapter
 lateinit var sharedPreferences: SharedPreferences
 lateinit var sharedEditor: SharedPreferences.Editor
-val executor = Executors.newSingleThreadScheduledExecutor()
 lateinit var alcoolText: TextView
 lateinit var sobreText: TextView
 lateinit var driveText: TextView
-lateinit var db: com.iseven.alcosafe.Database
+lateinit var db: Database
 lateinit var drinkDAO: DrinkDAO
 lateinit var contextMainActivity: Context
 lateinit var layout: ConstraintLayout
 lateinit var recyclerView: RecyclerView
-var runner = false
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,23 +53,35 @@ class MainActivity : AppCompatActivity() {
             val builder = AlertDialog.Builder(this)
             builder.setCancelable(false)
             builder.setTitle("Bienvenue sur AlcoSafe !")
-            builder.setMessage("Rappel : AlcoSafe est un estimateur d'alcoolémie basé sur des doses \"bar\", en fonction de votre " +
-                    "poids et de votre sexe. AlcoSafe sert uniquement d'indicateur et ne représente en aucun cas une preuve de votre " +
-                    "alcoolémie réelle. Vous êtes l'unique responsable de votre état, et il est fortemment recommandé d'utiliser un " +
+            builder.setMessage("Rappel :\n\n" +
+                    "AlcoSafe est un estimateur d'alcoolémie basé sur des doses \"bar\", en fonction de votre " +
+                    "poids et de votre sexe.\n\n" +
+                    "AlcoSafe est uniquement un indicateur et ne représente en aucun cas une preuve de votre " +
+                    "alcoolémie réelle.\n\n" +
+                    "Vous êtes l'unique responsable de votre état et il est fortemment recommandé d'utiliser un " +
                     "alcootest avant de prendre le volant.")
 
-            builder.setPositiveButton("OK") { dialog, which ->
+            builder.setPositiveButton("Suivant") { dialog, which ->
                 val builder = AlertDialog.Builder(this)
                 builder.setCancelable(false)
-                builder.setTitle("Mode d'emploi !")
-                builder.setMessage("⸰ Cliquez sur une boisson pour rentrer une heure et l'ajouter à votre liste de consommation.\n" +
-                        "⸰ Maintenez une boisson pour l'ajouter directement à votre liste de consommation avec l'heure actuelle.\n" +
-                        "⸰ Maintenez une boisson de votre liste de consommation pour la supprimmer.\n\n" +
-                        "À présent, réglez votre profil en cliquant sur \"Aller aux réglages\". ")
+                builder.setTitle("Mode d'emploi")
+                builder.setMessage("⸰ Cliquez sur une boisson pour rentrer une heure et l'ajouter à votre liste de consommation.\n\n" +
+                        "⸰ Maintenez une boisson pour l'ajouter directement à votre liste de consommation avec l'heure actuelle.\n\n" +
+                        "⸰ Maintenez une boisson de votre liste de consommation pour la supprimmer.")
 
-                builder.setPositiveButton("Aller aux réglages") { dialog, which ->
-                    val intent = Intent(this, Settings::class.java)
-                    startActivity(intent)
+                builder.setPositiveButton("Suivant") { dialog, which ->
+                    val builder = AlertDialog.Builder(this)
+                    builder.setCancelable(false)
+                    builder.setTitle("Notifications")
+                    builder.setMessage("Les notifications permettent à AlcoSafe de vous afficher en direct " +
+                        "votre taux d'alcoolémie et les informations qui vont avec.\n\n" +
+                                "Si vous les désactivez, vous pourrez toujours les réactiver dans les paramètres de votre téléphone.")
+
+                    builder.setPositiveButton("Suivant") { dialog, which ->
+                        val intent = Intent(this, Settings::class.java)
+                        startActivity(intent)
+                    }
+                    builder.show()
                 }
                 builder.show()
             }
@@ -82,14 +93,13 @@ class MainActivity : AppCompatActivity() {
 
         firstLaunch = sharedPreferences.getBoolean("firstLaunch", true)
         if(firstLaunch == true){
+            firstLaunchDialog()
             sharedEditor?.putBoolean("firstLaunch", false)
             sharedEditor?.commit()
-            firstLaunchDialog()
         }
 
         contextMainActivity = this
-        layout = findViewById<ConstraintLayout>(R.id.activity_main)
-
+        layout = findViewById(R.id.activity_main)
 
         db = Room.databaseBuilder(
             this,
@@ -102,14 +112,15 @@ class MainActivity : AppCompatActivity() {
         aJeun = sharedPreferences.getBoolean("aJeun", false)
         poids = sharedPreferences.getInt("poids", 75)
 
-        recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
-        alcoolText = findViewById<TextView>(R.id.alcoolText)
-        sobreText = findViewById<TextView>(R.id.sobreText)
+        recyclerView = findViewById(R.id.recyclerView)
+        alcoolText = findViewById(R.id.alcoolText)
+        sobreText = findViewById(R.id.sobreText)
         driveText = findViewById(R.id.driveText)
 
         val settings = findViewById<ImageButton>(R.id.settingsButton)
         val aJeunToggle = findViewById<Switch>(R.id.aJeunToggle)
         val reset = findViewById<ImageButton>(R.id.resetButton)
+        val info = findViewById<ImageButton>(R.id.infoButton)
 
         val beer25 = findViewById<ImageButton>(R.id.beer25Button)
         val beer50 = findViewById<ImageButton>(R.id.beer50Button)
@@ -142,6 +153,10 @@ class MainActivity : AppCompatActivity() {
             Thread.sleep(100)
             refresh()
             refreshHistory()
+        }
+
+        info.setOnClickListener {
+            infoDialog()
         }
 
         settings.setOnClickListener{
@@ -343,15 +358,50 @@ class MainActivity : AppCompatActivity() {
         }
 
         more.setOnClickListener {
-            val name = "Liqueur"
-            val percentage = 15
-            val quantity = 25
-            val tag = "more"
-            addDrink(name, percentage, quantity, tag, true)
+            var percentage = 0
+            var quantity = 0
+            val builder = AlertDialog.Builder(this)
+            builder.setTitle("Entrez le degré d'alcool :")
+            val input = EditText(this)
+            input.inputType = InputType.TYPE_CLASS_NUMBER
+            builder.setView(input)
+            builder.setPositiveButton("OK") { _, _ ->
+                val numPercentage = input.text.toString().toIntOrNull()
+                Log.d(TAG, "hhhh $numPercentage")
+                if ((numPercentage != null) && (numPercentage > 0)){
+                    percentage = numPercentage
+                    val builder = AlertDialog.Builder(this)
+                    builder.setTitle("Entrez la quantité de boisson en cl :")
+                    val input = EditText(this)
+                    input.inputType = InputType.TYPE_CLASS_NUMBER
+                    builder.setView(input)
+                    builder.setPositiveButton("OK") { _, _ ->
+                        val numQuantity = input.text.toString().toIntOrNull()
+                        Log.d(TAG, "hhhh $numQuantity")
+                        if ((numQuantity != null) && (numQuantity > 0)){
+                            quantity = numQuantity
+                            val name = "Autre"
+                            val tag = "more"
+                            Log.d(TAG, "hhhh $percentage")
+                            Log.d(TAG, "hhhh $quantity")
+                            addDrink(name, percentage, quantity, tag, true)
+                        }else{
+                            Toast.makeText(this, "La saisie n'est pas valable, rentrez seuleument des entiers naturels strictement positifs", Toast.LENGTH_LONG)
+                        }
+                    }
+                    builder.setNegativeButton("Annuler") { _, _ -> }
+                    builder.show()
+                }else{
+                    Toast.makeText(this, "La saisie n'est pas valable, rentrez seuleument des entiers naturels strictement positifs", Toast.LENGTH_LONG)
+                }
+            }
+            builder.setNegativeButton("Annuler") { _, _ -> }
+            builder.show()
         }
 
         val intent = Intent(this, AlcoService::class.java)
         startService(intent)
+
     }
 
     override fun onDestroy() {
@@ -458,7 +508,7 @@ fun addDrink(name: String, percentage: Int, quantity: Int, tag: String, getTime:
 fun deleteDrink(drink: Drink){
     val builder = AlertDialog.Builder(contextMainActivity)
     builder.setTitle("Suppression de boisson")
-    builder.setMessage("Voulez vous vraiment supprimer la boisson ${drink.name} ?")
+    builder.setMessage("Voulez vous vraiment supprimer la boisson \"${drink.name}\" ?")
 
     builder.setPositiveButton("Oui") { dialog, which ->
         Thread {
@@ -476,4 +526,45 @@ fun deleteDrink(drink: Drink){
             "La boisson n'a pas été supprimé.", Toast.LENGTH_SHORT).show()
     }
     builder.show()
+}
+
+fun infoDialog() {
+    val builder = AlertDialog.Builder(contextMainActivity)
+    builder.setTitle("Bienvenue sur AlcoSafe !")
+    builder.setMessage("Rappel :\n\n" +
+            "AlcoSafe est un estimateur d'alcoolémie basé sur des doses \"bar\", en fonction de votre " +
+            "poids et de votre sexe.\n\n" +
+            "AlcoSafe est uniquement un indicateur et ne représente en aucun cas une preuve de votre " +
+            "alcoolémie réelle.\n\n" +
+            "Vous êtes l'unique responsable de votre état et il est fortemment recommandé d'utiliser un " +
+            "alcootest avant de prendre le volant.")
+
+    builder.setPositiveButton("Suivant") { dialog, which ->
+        val builder = AlertDialog.Builder(contextMainActivity)
+        builder.setTitle("Mode d'emploi")
+        builder.setMessage(
+            "⸰ Cliquez sur une boisson pour rentrer une heure et l'ajouter à votre liste de consommation.\n\n" +
+                    "⸰ Maintenez une boisson pour l'ajouter directement à votre liste de consommation avec l'heure actuelle.\n\n" +
+                    "⸰ Maintenez une boisson de votre liste de consommation pour la supprimmer."
+        )
+
+        builder.setPositiveButton("OK") { dialog, which ->
+        }
+        builder.show()
+    }
+    builder.show()
+}
+
+fun requestPermissionNotification(context: Context, activity: Activity){
+    if (ContextCompat.checkSelfPermission(context,
+            Manifest.permission.POST_NOTIFICATIONS)
+        != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(activity,
+                Manifest.permission.POST_NOTIFICATIONS)) {
+        } else {
+            ActivityCompat.requestPermissions(activity,
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                0)
+        }
+    }
 }

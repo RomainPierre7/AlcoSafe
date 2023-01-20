@@ -13,6 +13,8 @@ class Settings : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
+        requestPermissionNotification(this, this)
+
         val sexToggle = findViewById<ToggleButton>(R.id.sexToggle)
         val permisToggle = findViewById<ToggleButton>(R.id.permisToggle)
         val poidsEdit = findViewById<EditText>(R.id.poidsEdit)
@@ -51,8 +53,5 @@ class Settings : AppCompatActivity() {
                 sharedEditor?.commit()
             }
         }
-
-
-
     }
 }
