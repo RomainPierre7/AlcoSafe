@@ -5,14 +5,6 @@ import android.util.Log
 import java.text.DecimalFormat
 import java.util.*
 
-var permisDef = true
-var homme = true
-var aJeun = false
-var poids = 75
-var globalAlco = 0.0
-var lastDigestTime: Long = 0
-var listDrinks: List<Drink> = emptyList()
-
 fun alcoolemie(){
     var sum = 0.0
     for (i in listDrinks.indices){

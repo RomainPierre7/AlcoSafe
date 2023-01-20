@@ -22,15 +22,14 @@ import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
-
-//TODO
-//Renseigner caracteristiques boissons
-//historique
-//supprimer boisson historique
-// Notification alco (service)
-// Message premier lancement
-// Nettoyer le code
-// Opti
+var firstLaunch = true
+var permisDef = true
+var homme = true
+var aJeun = false
+var poids = 75
+var globalAlco = 0.0
+var lastDigestTime: Long = 0
+var listDrinks: List<Drink> = emptyList()
 
 lateinit var adapter: HistoryAdapter
 lateinit var sharedPreferences: SharedPreferences
@@ -44,23 +43,60 @@ lateinit var drinkDAO: DrinkDAO
 lateinit var contextMainActivity: Context
 lateinit var layout: ConstraintLayout
 lateinit var recyclerView: RecyclerView
-val contextApplication = Application.CONTEXT_INCLUDE_CODE
+var runner = false
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        contextMainActivity = this
-        layout = findViewById<ConstraintLayout>(R.id.activity_main)
+        fun firstLaunchDialog(){
+            val builder = AlertDialog.Builder(this)
+            builder.setCancelable(false)
+            builder.setTitle("Bienvenue sur AlcoSafe !")
+            builder.setMessage("Rappel : AlcoSafe est un estimateur d'alcoolémie basé sur des doses \"bar\", en fonction de votre " +
+                    "poids et de votre sexe. AlcoSafe sert uniquement d'indicateur et ne représente en aucun cas une preuve de votre " +
+                    "alcoolémie réelle. Vous êtes l'unique responsable de votre état, et il est fortemment recommandé d'utiliser un " +
+                    "alcootest avant de prendre le volant.")
+
+            builder.setPositiveButton("OK") { dialog, which ->
+                val builder = AlertDialog.Builder(this)
+                builder.setCancelable(false)
+                builder.setTitle("Mode d'emploi !")
+                builder.setMessage("⸰ Cliquez sur une boisson pour rentrer une heure et l'ajouter à votre liste de consommation.\n" +
+                        "⸰ Maintenez une boisson pour l'ajouter directement à votre liste de consommation avec l'heure actuelle.\n" +
+                        "⸰ Maintenez une boisson de votre liste de consommation pour la supprimmer.\n\n" +
+                        "À présent, réglez votre profil en cliquant sur \"Aller aux réglages\". ")
+
+                builder.setPositiveButton("Aller aux réglages") { dialog, which ->
+                    val intent = Intent(this, Settings::class.java)
+                    startActivity(intent)
+                }
+                builder.show()
+            }
+            builder.show()
+        }
 
         sharedPreferences = getSharedPreferences("sharedPreferences", MODE_PRIVATE)
         sharedEditor = sharedPreferences?.edit()!!
+
+        firstLaunch = sharedPreferences.getBoolean("firstLaunch", true)
+        if(firstLaunch == true){
+            sharedEditor?.putBoolean("firstLaunch", false)
+            sharedEditor?.commit()
+            firstLaunchDialog()
+        }
+
+        contextMainActivity = this
+        layout = findViewById<ConstraintLayout>(R.id.activity_main)
+
+
         db = Room.databaseBuilder(
             this,
             Database::class.java, "drink_database"
         ).build()
         drinkDAO = db.drinkDao()
+
         permisDef = sharedPreferences.getBoolean("permisDef", true)
         homme = sharedPreferences.getBoolean("homme", true)
         aJeun = sharedPreferences.getBoolean("aJeun", false)
@@ -314,26 +350,14 @@ class MainActivity : AppCompatActivity() {
             addDrink(name, percentage, quantity, tag, true)
         }
 
-        startRunner()
-    }
-
-    override fun onStart() {
-        super.onStart()
-    }
-
-    override fun onResume() {
-        super.onResume()
+        val intent = Intent(this, AlcoService::class.java)
+        startService(intent)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        executor.shutdown()
-    }
-
-    private fun startRunner() {
-        executor.scheduleAtFixedRate({
-            refresh()
-        }, 0, 1, TimeUnit.SECONDS)
+        val intent = Intent(this, AlcoService::class.java)
+        stopService(intent)
     }
 }
 
@@ -358,7 +382,7 @@ private fun refreshTexts() {
     driveText.text = driveString()
 }
 
-private fun refresh(){
+fun refresh(){
     alcoolemie()
     refreshTexts()
     refreshBackground()
@@ -389,7 +413,7 @@ fun addDrink(name: String, percentage: Int, quantity: Int, tag: String, getTime:
                         calendar.set(Calendar.MINUTE, minute)
                         var timeMS = calendar.timeInMillis
                         val drink = Drink(0, name, percentage, quantity, timeMS, tag)
-                        if (timeMS <= currentTimeMS) {
+                        if (timeMS <= currentTimeMS + 60 * 1000) {
                             Thread {
                                 drinkDAO.insertDrink(drink)
                                 listDrinks = drinkDAO.getAllDrinks()
