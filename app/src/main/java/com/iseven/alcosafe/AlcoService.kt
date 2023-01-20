@@ -11,9 +11,12 @@ import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import kotlinx.coroutines.delay
 import java.util.*
 
 var stopNotif = true
+var exSobreString = ""
 
 class AlcoService: Service() {
 
@@ -25,7 +28,10 @@ class AlcoService: Service() {
                 refresh()
                 if(globalAlco > 0.0){
                     stopNotif = false
-                    showNotification()
+                    if (exSobreString != sobreString()){
+                        exSobreString = sobreString()
+                        showNotification()
+                    }
                 }else if (stopNotif == false){
                     stopNotif = true
                     showNotification()
@@ -40,7 +46,7 @@ class AlcoService: Service() {
     }
 
     fun showNotification() {
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager = NotificationManagerCompat.from(this)
         val notificationId = 1
         val channelId = "alco_channel"
         val channelName = "Alcoolemie"
@@ -59,6 +65,7 @@ class AlcoService: Service() {
             .setContentText(alcoolemieToString() + " | " + sobreString())
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentIntent(pendingIntent)
+            .setOnlyAlertOnce(true)
             .build()
 
         notificationManager.notify(notificationId, notification)
