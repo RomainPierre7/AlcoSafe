@@ -5,7 +5,6 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
@@ -17,6 +16,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -52,7 +52,7 @@ lateinit var recyclerView: RecyclerView
 
 class MainActivity : AppCompatActivity() {
     private var mInterstitialAd: InterstitialAd? = null
-    private final var TAG = "MainActivity"
+    private var TAG = "MainActivity"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -181,14 +181,15 @@ class MainActivity : AppCompatActivity() {
             Thread.sleep(100)
             refresh()
             refreshHistory()
-            notifState = true
-            sharedEditor?.putBoolean("permisDef", true)
-            sharedEditor?.commit()
             if (mInterstitialAd != null) {
                 mInterstitialAd?.show(this)
-            } else {
-                Log.d("TAG", "The interstitial ad wasn't ready yet.")
             }
+            stopNotif = true
+            notifState = true
+            sharedEditor?.putBoolean("notifState", true)
+            sharedEditor?.commit()
+            val notificationManager = NotificationManagerCompat.from(this)
+            notificationManager.cancel(1)
         }
 
         info.setOnClickListener {
