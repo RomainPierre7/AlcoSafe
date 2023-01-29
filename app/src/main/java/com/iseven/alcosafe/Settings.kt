@@ -7,11 +7,17 @@ import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ToggleButton
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
 
 class Settings : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
+
+        var settingsAdView = findViewById<AdView>(R.id.adViewSettings)
+        val adRequest = AdRequest.Builder().build()
+        settingsAdView.loadAd(adRequest)
 
         requestPermissionNotification(this, this)
 

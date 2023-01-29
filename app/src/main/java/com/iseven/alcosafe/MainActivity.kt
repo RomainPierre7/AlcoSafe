@@ -21,7 +21,13 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.LoadAdError
 import java.util.*
+import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 
 var firstLaunch = true
 var permisDef = true
@@ -45,9 +51,25 @@ lateinit var layout: ConstraintLayout
 lateinit var recyclerView: RecyclerView
 
 class MainActivity : AppCompatActivity() {
+    private var mInterstitialAd: InterstitialAd? = null
+    private final var TAG = "MainActivity"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        var adRequestInter = AdRequest.Builder().build()
+
+        InterstitialAd.load(this,"ca-app-pub-5907089859538752/9615721281", adRequestInter, object : InterstitialAdLoadCallback() {
+            override fun onAdFailedToLoad(adError: LoadAdError) {
+                adError?.toString()?.let { Log.d(TAG, it) }
+                mInterstitialAd = null
+            }
+
+            override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                Log.d(TAG, "Ad was loaded.")
+                mInterstitialAd = interstitialAd
+            }
+        })
 
         fun firstLaunchDialog(){
             val builder = AlertDialog.Builder(this)
@@ -88,6 +110,11 @@ class MainActivity : AppCompatActivity() {
             builder.show()
         }
 
+        MobileAds.initialize(this){}
+        var mainAdView = findViewById<AdView>(R.id.adViewMain)
+        val adRequest = AdRequest.Builder().build()
+        mainAdView.loadAd(adRequest)
+
         sharedPreferences = getSharedPreferences("sharedPreferences", MODE_PRIVATE)
         sharedEditor = sharedPreferences?.edit()!!
 
@@ -107,6 +134,7 @@ class MainActivity : AppCompatActivity() {
         ).build()
         drinkDAO = db.drinkDao()
 
+        notifState = sharedPreferences.getBoolean("notifState", true)
         permisDef = sharedPreferences.getBoolean("permisDef", true)
         homme = sharedPreferences.getBoolean("homme", true)
         aJeun = sharedPreferences.getBoolean("aJeun", false)
@@ -153,6 +181,14 @@ class MainActivity : AppCompatActivity() {
             Thread.sleep(100)
             refresh()
             refreshHistory()
+            notifState = true
+            sharedEditor?.putBoolean("permisDef", true)
+            sharedEditor?.commit()
+            if (mInterstitialAd != null) {
+                mInterstitialAd?.show(this)
+            } else {
+                Log.d("TAG", "The interstitial ad wasn't ready yet.")
+            }
         }
 
         info.setOnClickListener {
@@ -214,8 +250,8 @@ class MainActivity : AppCompatActivity() {
 
         wine.setOnLongClickListener {
             val name = "Vin"
-            val percentage = 13
-            val quantity = 12
+            val percentage = 12
+            val quantity = 10
             val tag = "wine"
             addDrink(name, percentage, quantity, tag, false)
             true

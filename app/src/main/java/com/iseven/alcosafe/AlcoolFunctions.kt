@@ -18,9 +18,9 @@ fun alcoolemieDrink(drink: Drink): Double {
     var alco: Double
     var gramme = gramme(drink.percentage, drink.quantity)
     if (homme){
-        alco = gramme/(poids * 0.7) - (weight(drink) * (0.1/60) * jeun(elapsedTimeMinutes))
+        alco = gramme/(poids * 0.7) - (weight(drink) * (0.13/60) * jeun(elapsedTimeMinutes))
     }else{
-        alco = gramme/(poids * 0.6)- (weight(drink) * (0.085/60) * jeun(elapsedTimeMinutes))
+        alco = gramme/(poids * 0.6)- (weight(drink) * (0.092/60) * jeun(elapsedTimeMinutes))
     }
     if (alco < 0.0){
         return 0.0

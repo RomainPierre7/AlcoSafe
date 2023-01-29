@@ -1,9 +1,6 @@
 package com.iseven.alcosafe
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.app.Service
+import android.app.*
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
@@ -16,6 +13,7 @@ import kotlinx.coroutines.delay
 import java.util.*
 
 var stopNotif = true
+var notifState = true
 var exSobreString = ""
 
 class AlcoService: Service() {
@@ -26,15 +24,17 @@ class AlcoService: Service() {
         timer.scheduleAtFixedRate(object : TimerTask() {
             override fun run() {
                 refresh()
-                if(globalAlco > 0.0){
-                    stopNotif = false
-                    if (exSobreString != sobreString()){
-                        exSobreString = sobreString()
+                if (notifState == true){
+                    if(globalAlco > 0.0){
+                        stopNotif = false
+                        if (exSobreString != sobreString()){
+                            exSobreString = sobreString()
+                            showNotification()
+                        }
+                    }else if (stopNotif == false){
+                        stopNotif = true
                         showNotification()
                     }
-                }else if (stopNotif == false){
-                    stopNotif = true
-                    showNotification()
                 }
             }
         }, 0, 1000)
@@ -59,6 +59,9 @@ class AlcoService: Service() {
 
         val intent = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE)
+        val disableIntent = Intent(this, DisableReceiver::class.java)
+        disableIntent.putExtra("notifState", false)
+        val disablePendingIntent = PendingIntent.getBroadcast(this, 1, disableIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
         val notification = NotificationCompat.Builder(this, channelId)
             .setContentTitle("Alcoolémie" + " | " + driveString())
@@ -66,6 +69,7 @@ class AlcoService: Service() {
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentIntent(pendingIntent)
             .setOnlyAlertOnce(true)
+            .addAction(0 , "Désactiver", disablePendingIntent)
             .build()
 
         notificationManager.notify(notificationId, notification)
