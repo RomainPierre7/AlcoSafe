@@ -54,10 +54,10 @@ class AlcoService: Service() {
         }
 
         val intent = Intent(this, MainActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE)
+        val pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE)
         val disableIntent = Intent(this, DisableReceiver::class.java)
         disableIntent.putExtra("notifState", false)
-        val disablePendingIntent = PendingIntent.getBroadcast(this, 1, disableIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val disablePendingIntent = PendingIntent.getBroadcast(this, 1, disableIntent, PendingIntent.FLAG_IMMUTABLE)
 
         val notification = NotificationCompat.Builder(this, channelId)
             .setContentTitle("Alcoolémie" + " | " + driveString())

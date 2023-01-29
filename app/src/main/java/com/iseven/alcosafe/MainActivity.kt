@@ -30,6 +30,7 @@ import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 
 var firstLaunch = true
+var resetNumber = 0
 var permisDef = true
 var homme = true
 var aJeun = false
@@ -134,6 +135,7 @@ class MainActivity : AppCompatActivity() {
         ).build()
         drinkDAO = db.drinkDao()
 
+        resetNumber = sharedPreferences.getInt("reset", 0)
         notifState = sharedPreferences.getBoolean("notifState", true)
         permisDef = sharedPreferences.getBoolean("permisDef", true)
         homme = sharedPreferences.getBoolean("homme", true)
@@ -181,15 +183,35 @@ class MainActivity : AppCompatActivity() {
             Thread.sleep(100)
             refresh()
             refreshHistory()
-            if (mInterstitialAd != null) {
+            if ((mInterstitialAd != null) && (resetNumber > 1)) {
                 mInterstitialAd?.show(this)
             }
+            resetNumber++
+            sharedEditor?.putInt("reset", resetNumber)
+            sharedEditor?.commit()
             stopNotif = true
             notifState = true
             sharedEditor?.putBoolean("notifState", true)
             sharedEditor?.commit()
             val notificationManager = NotificationManagerCompat.from(this)
             notificationManager.cancel(1)
+        }
+
+        reset.setOnLongClickListener {
+            Thread{
+                drinkDAO.deleteAll()
+                listDrinks = drinkDAO.getAllDrinks()
+            }.start()
+            Thread.sleep(100)
+            refresh()
+            refreshHistory()
+            stopNotif = true
+            notifState = true
+            sharedEditor?.putBoolean("notifState", true)
+            sharedEditor?.commit()
+            val notificationManager = NotificationManagerCompat.from(this)
+            notificationManager.cancel(1)
+            true
         }
 
         info.setOnClickListener {
@@ -404,7 +426,6 @@ class MainActivity : AppCompatActivity() {
             builder.setView(input)
             builder.setPositiveButton("OK") { _, _ ->
                 val numPercentage = input.text.toString().toIntOrNull()
-                Log.d(TAG, "hhhh $numPercentage")
                 if ((numPercentage != null) && (numPercentage > 0)){
                     percentage = numPercentage
                     val builder = AlertDialog.Builder(this)
@@ -414,13 +435,10 @@ class MainActivity : AppCompatActivity() {
                     builder.setView(input)
                     builder.setPositiveButton("OK") { _, _ ->
                         val numQuantity = input.text.toString().toIntOrNull()
-                        Log.d(TAG, "hhhh $numQuantity")
                         if ((numQuantity != null) && (numQuantity > 0)){
                             quantity = numQuantity
                             val name = "Autre"
                             val tag = "more"
-                            Log.d(TAG, "hhhh $percentage")
-                            Log.d(TAG, "hhhh $quantity")
                             addDrink(name, percentage, quantity, tag, true)
                         }else{
                             Toast.makeText(this, "La saisie n'est pas valable, rentrez seuleument des entiers naturels strictement positifs", Toast.LENGTH_LONG)
