@@ -73,22 +73,37 @@ fun remainingTimeToString(remainingTime: Int): String{
 }
 
 fun sobreString(): String {
-    if (globalAlco == 0.0){
-        return "Sobre"
-    } else {
-        return "Sobre dans " + remainingTimeToString(remainingTime(0.0))
+    when (permisDef) {
+        true -> if (globalAlco == 0.0) {
+            return "Sobre"
+        }else if(globalAlco < 0.5){
+            return "Sobre dans " + remainingTimeToString(remainingTime(0.0))
+        } else {
+            return "Conduite possible dans \n " + remainingTimeToString(remainingTime(0.5))
+        }
+        false -> if (globalAlco == 0.2) {
+            return "Sobre"
+        } else if (globalAlco < 0.2){
+            return "Sobre dans " + remainingTimeToString(remainingTime(0.2))
+        } else {
+            return "Conduite possible dans \n" + remainingTimeToString(remainingTime(0.2))
+        }
     }
 }
 
 fun driveString(): String{
     when (permisDef){
-        true -> if(globalAlco < 0.5){
+        true -> if(globalAlco == 0.0){
             return "Vous pouvez conduire"
+        } else if(globalAlco < 0.5){
+            return "Vous pouvez conduire (après ethylotest)"
         }else{
             return "⚠ Vous ne pouvez pas conduire ⚠"
         }
-        false -> if(globalAlco < 0.2){
+        false -> if(globalAlco == 0.0) {
             return "Vous pouvez conduire"
+        } else if(globalAlco < 0.2){
+            return "Vous pouvez conduire (après ethylotest)"
         }else{
             return "⚠ Vous ne pouvez pas conduire ⚠"
         }
