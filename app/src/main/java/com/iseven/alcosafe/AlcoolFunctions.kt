@@ -1,5 +1,6 @@
 package com.iseven.alcosafe
 
+import android.util.Log
 import java.text.DecimalFormat
 import java.util.*
 
@@ -81,10 +82,10 @@ fun sobreString(): String {
         } else {
             return "Conduite possible dans \n " + remainingTimeToString(remainingTime(0.5))
         }
-        false -> if (globalAlco == 0.2) {
+        false -> if (globalAlco == 0.0) {
             return "Sobre"
         } else if (globalAlco < 0.2){
-            return "Sobre dans " + remainingTimeToString(remainingTime(0.2))
+            return "Sobre dans " + remainingTimeToString(remainingTime(0.0))
         } else {
             return "Conduite possible dans \n" + remainingTimeToString(remainingTime(0.2))
         }

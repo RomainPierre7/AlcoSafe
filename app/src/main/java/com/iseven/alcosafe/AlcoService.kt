@@ -3,10 +3,13 @@ package com.iseven.alcosafe
 import android.app.*
 import android.content.Intent
 import android.os.Build
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import java.util.*
+
 
 var stopNotif = true
 var notifState = true
@@ -17,9 +20,11 @@ class AlcoService: Service() {
     var timer = Timer()
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        timer.scheduleAtFixedRate(object : TimerTask() {
+        // val handler: Handler = Handler(Looper.getMainLooper())
+        timer.schedule(object : TimerTask() {
             override fun run() {
-                refresh()
+                // handler.post(refresh());
+                alcoolemie()
                 if (notifState == true){
                     if(globalAlco > 0.0){
                         stopNotif = false
