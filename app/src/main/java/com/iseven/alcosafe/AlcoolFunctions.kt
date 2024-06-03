@@ -16,10 +16,10 @@ fun alcoolemieDrink(drink: Drink): Double {
     val calendar = Calendar.getInstance()
     val currentTime = calendar.timeInMillis
     val elapsedTimeMinutes = (currentTime - drink.time) / (1000 * 60)
-    var alco: Double
-    var gramme = gramme(drink.percentage, drink.quantity)
+    val alco: Double
+    val gramme = 0.8 * drink.quantity * 10 * drink.percentage / 100
     if (homme){
-        alco = gramme/(poids * 0.7) - (weight(drink) * (0.13/60) * jeun(elapsedTimeMinutes))
+        alco = gramme/(poids * 0.7) - (weight(drink) * (0.125/60) * jeun(elapsedTimeMinutes))
     }else{
         alco = gramme/(poids * 0.6)- (weight(drink) * (0.092/60) * jeun(elapsedTimeMinutes))
     }
@@ -111,10 +111,6 @@ fun driveString(): String{
     }
 }
 
-fun gramme(pourcentage: Int, quantity: Int): Int {
-    return ((9 * pourcentage * quantity * 10).toDouble() / (1000).toDouble()).toInt()
-}
-
 fun jeun(time: Long): Long{
     when (aJeun){
         true -> if (time < 30){
@@ -131,9 +127,9 @@ fun jeun(time: Long): Long{
 }
 
 fun weight(drink: Drink): Double{
-    var tot = 0
+    var tot = 0.0
     for (i in listDrinks.indices){
-        tot += gramme(listDrinks[i].percentage, listDrinks[i].quantity)
+        tot += 0.8 * listDrinks[i].quantity * 10 * listDrinks[i].percentage / 100
     }
-    return gramme(drink.percentage, drink.quantity).toDouble()/tot.toDouble()
+    return (0.8 * drink.quantity * 10 * drink.percentage / 100 ) / tot
 }
